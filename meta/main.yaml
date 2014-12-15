@@ -1,0 +1,12 @@
+---
+
+galaxy_info:
+  author: Jiri Tyr
+  description: Ansible role which installs a particulat version of Oracle Java
+  license: MIT
+  min_ansible_version: 1.7
+  platforms:
+    - name: Redhat
+  categories:
+    - system
+dependencies: []

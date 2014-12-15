@@ -1,0 +1,19 @@
+---
+
+- name: Remove unmanaged Java packages
+  shell: >
+    for F in $(rpm -qa | egrep -o '^j(dk|re).*-' | sed 's/-$//'); do
+      FOUND=0;
+      for M in $(cat .managed); do
+        [ "${M}" == "$F" ] && FOUND=1;
+      done;
+      if [ $FOUND == 0 ]; then
+        yum remove -y $F
+        alternatives --remove java /usr/java/$(echo $F | sed -r 's/^j(re|dk).*-/j\1/')/bin/java
+      fi
+    done;
+    true;
+  args:
+    chdir: /usr/java
+    executable: /bin/bash
+  changed_when: False

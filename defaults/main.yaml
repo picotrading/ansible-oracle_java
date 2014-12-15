@@ -1,0 +1,34 @@
+---
+
+# Default Java distribution [jdk|jre]
+oracle_java_distribution: jdk
+
+# Default major version
+oracle_java_version_major: 1
+
+# Default minor version
+oracle_java_version_minor: 7
+
+# Default patch version
+oracle_java_version_patch: 0
+
+# Default update version
+oracle_java_version_update: 71
+
+# Indicates whether this Java versin should be set as default alternative
+oracle_java_default: false
+
+# Flag which triggers the package cleaning
+oracle_java_finish: false
+
+# Version as a string
+oracle_java_version_string: '{{ oracle_java_version_major }}.{{ oracle_java_version_minor }}.{{ oracle_java_version_patch }}_{{ oracle_java_version_update }}'
+
+# Directory name
+oracle_java_version_dir: '{{ oracle_java_distribution }}{{ oracle_java_version_string }}'
+
+# Java8 has the version as part of the package name
+oracle_java_distribution_string: '{{ oracle_java_distribution + oracle_java_version_string if oracle_java_version_minor == 8 else oracle_java_distribution }}'
+
+# Alternatives priority
+oracle_java_version_priority: '{{ oracle_java_version_major}}{{ "%02d" % oracle_java_version_minor }}{{ "%02d" % oracle_java_version_patch }}{{ "%03d" % oracle_java_version_update }}'

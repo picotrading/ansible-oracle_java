@@ -1,0 +1,79 @@
+---
+
+- name: Test distribution
+  assert:
+    that: ansible_os_family == "RedHat"
+
+- name: Install Java package
+  yum:
+    pkg: "{{ oracle_java_distribution_string }}-{{ oracle_java_version_string }}"
+    state: installed
+  when: oracle_java_distribution != "none"
+
+- name: Check which Java alternative is installed
+  shell: alternatives --display java | grep -o {{ oracle_java_version_priority }}; true
+  register: java_alternative
+  changed_when: False
+
+- name: Install Java alternative for JDK
+  shell: >
+    alternatives
+    --install /usr/bin/java java /usr/java/{{ oracle_java_version_dir }}/bin/java {{ oracle_java_version_priority }}
+    --slave /usr/bin/jar jar /usr/java/{{ oracle_java_version_dir }}/bin/java
+    --slave /usr/bin/javac javac /usr/java/{{ oracle_java_version_dir }}/bin/javac
+    --slave /usr/bin/javadoc javadoc /usr/java/{{ oracle_java_version_dir }}/bin/javadoc
+    --slave /usr/bin/javaws javaws /usr/java/{{ oracle_java_version_dir }}/bin/javaws
+    --slave /usr/bin/jcontrol jcontrol /usr/java/{{ oracle_java_version_dir }}/bin/jcontrol
+  when: oracle_java_distribution == "jdk" and java_alternative.stdout == ""
+
+- name: Install Java alternative for JRE
+  shell: >
+    alternatives
+    --install /usr/bin/java java /usr/java/{{ oracle_java_version_dir }}/bin/java {{ oracle_java_version_priority }}
+    --slave /usr/bin/javaws javaws /usr/java/{{ oracle_java_version_dir }}/bin/javaws
+    --slave /usr/bin/jcontrol jcontrol /usr/java/{{ oracle_java_version_dir }}/bin/jcontrol
+  when: oracle_java_distribution == "jre" and java_alternative.stdout == ""
+
+- name: Check which link is set as the default
+  shell: >
+    alternatives --display java |
+    grep 'link currently points to' |
+    sed -r -e 's,/bin/java,,' -e 's,.*/(jdk|jre),,' -e 's/[\._]/ /g' |
+    awk '{printf "%d%02d%02d%03d", $1, $2, $3, $4}'
+  register: java_alternative_set
+  changed_when: False
+
+- name: Set default alternative
+  shell: alternatives --set java /usr/java/{{ oracle_java_version_dir }}/bin/java
+  when: >
+    oracle_java_default and
+    java_alternative_set.stdout != oracle_java_version_priority
+
+- name: Create temporal directory
+  file:
+    path: "/tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}"
+    state: directory
+  changed_when: False
+
+- name: Create fragment files
+  lineinfile:
+    line: "{{ oracle_java_distribution_string }}-{{ oracle_java_version_string }}"
+    dest: "/tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}/{{ oracle_java_distribution_string }}-{{ oracle_java_version_string }}"
+    create: yes
+    state: present
+  changed_when: False
+  when: oracle_java_distribution != "none"
+
+- name: Create managed file
+  assemble:
+    src: "/tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}"
+    dest: "/usr/java/.managed"
+    regexp: '^[^\.].*'
+  when: oracle_java_finish
+  notify:
+    - Remove unmanaged Java packages
+
+- name: Delete the fragment directory
+  shell: rm -fr "/tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}"
+  changed_when: False
+  when: oracle_java_finish
