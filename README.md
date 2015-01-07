@@ -3,10 +3,12 @@ oracle_java
 
 Ansible role which installs a particulat version of Oracle Java. It only works
 for RedHat at the moment and it requires you to configure YUM repo from which the
-Oracle Java RPM is intalled. You can use this role to install multiple version of
-Oracle Java and choose which one is the default one for which the `/usr/bin/`
-links will be created. All Java packages not managed by this role will be
-automatically uninstalled.
+Oracle Java RPM is intalled (see
+[`yumrepo`](https://github.com/picotrading/ansible-yumrepo) and
+[`pulp`](https://github.com/picotrading/ansible-yumrepo)). You can use this role
+to install multiple version of Oracle Java and choose which one is the default
+one for which the `/usr/bin/` links will be created. All Java packages not
+managed by this role will be automatically uninstalled.
 
 
 Example
@@ -18,13 +20,13 @@ Example
 # Example of how to install default version (jdk-1.7.0_71)
 - hosts: myhost1
   roles:
-    - role: oracle-java
+    - role: oracle_java
       oracle_java_finish: yes
 
 # Example of how to install a particular version (jre-1.8.0_25)
 - hosts: myhost2
   roles:
-    - role: oracle-java
+    - role: oracle_java
       oracle_java_distribution: jre
       oracle_java_version_minor: 8
       oracle_java_version_update: 25
@@ -34,11 +36,11 @@ Example
 # set as default):
 - hosts: myhost3
   roles:
-    - role: oracle-java
+    - role: oracle_java
       oracle_java_distribution: jre
       oracle_java_version_minor: 8
       oracle_java_version_update: 25
-    - role: oracle-java
+    - role: oracle_java
       oracle_java_distribution: jdk
       oracle_java_version_minor: 7
       oracle_java_version_update: 71
