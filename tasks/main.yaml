@@ -51,14 +51,14 @@
 
 - name: Create temporal directory
   file:
-    path: "/tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}"
+    path: /tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}
     state: directory
   changed_when: False
 
 - name: Create fragment files
   lineinfile:
     line: "{{ oracle_java_distribution_string }}-{{ oracle_java_version_string }}"
-    dest: "/tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}/{{ oracle_java_distribution_string }}-{{ oracle_java_version_string }}"
+    dest: /tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}/{{ oracle_java_distribution_string }}-{{ oracle_java_version_string }}
     create: yes
     state: present
   changed_when: False
@@ -66,8 +66,8 @@
 
 - name: Create managed file
   assemble:
-    src: "/tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}"
-    dest: "/usr/java/.managed"
+    src: /tmp/ansible.oracle_java.{{ ansible_date_time.iso8601_micro }}
+    dest: /usr/java/.managed
     regexp: '^[^\.].*'
   when: oracle_java_finish
   notify:
