@@ -7,7 +7,7 @@
 - name: Install Java package
   yum:
     name: "{{ oracle_java_distribution_string }}-{{ oracle_java_version_string }}"
-    state: installed
+    state: present
   when: oracle_java_distribution != "none"
 
 - name: Check which Java alternative is installed
